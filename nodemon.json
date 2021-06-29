@@ -1,0 +1,12 @@
+{
+    "ext": "ts",
+    "watch": [
+        "src/**/*.ts",
+        "./.env",
+        "./.env.runtime"
+    ],
+    "ignore": "src/**/*.test.ts",
+    "exec": "node --inspect=0.0.0.0:9239 --nolazy -r ts-node/register --trace-warnings src/App.ts",
+    "verbose": false,
+    "signal": "SIGTERM"
+}

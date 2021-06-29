@@ -11,5 +11,6 @@
     "outDir": "./dist",
     "baseUrl": "./",
     "incremental": true
-  }
+  },
+  "exclude": ["build", "node_modules", "coverage", "tests", "src/**/*.test.ts"]
 }
