@@ -12,6 +12,7 @@ services:
         tty: true
         volumes: 
             - ./:/app
+            - /app/node_modules/bcrypt/
         ports: 
             - 3000:3000
             - 9229:9229
