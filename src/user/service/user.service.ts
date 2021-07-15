@@ -2,14 +2,13 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { from, throwError } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
-import { AuthService } from 'src/auth/service/auth.service';
+import { AuthService } from './../../auth/service/auth.service';
 import { Repository } from 'typeorm';
 import { RoleEntity } from '../models/role.entity';
 import { UserDto, userRoleMapper } from '../models/user.dto';
 import { UserEntity } from '../models/user.entity';
 import { v4 as uuidv4 } from 'uuid';
 import { AddressEntity } from '../models/address.entity';
-import { use } from 'passport';
 
 @Injectable()
 export class UserService {
@@ -46,14 +45,16 @@ export class UserService {
         userEntity.faxNumber = user.faxNumber;
         userEntity.role = userRole;
 
-        return from(this.userRepository.save(userEntity)).pipe(
-            map((user: UserEntity) => {
-                // eslint-disable-next-line @typescript-eslint/no-unused-vars
-                delete user.password;
-                return user;
-            }),
-            catchError((err) => throwError(err)),
-        );
+        // return from(this.userRepository.save(userEntity)).pipe(
+        //     map((user: UserEntity) => {
+        //         // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        //         delete user.password;
+        //         return user;
+        //     }),
+        //     catchError((err) => throwError(err)),
+        // );
+
+        return await this.userRepository.save(userEntity);
     }
 
     public async login(user: UserDto): Promise<string> {

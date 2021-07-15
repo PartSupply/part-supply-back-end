@@ -17,7 +17,7 @@ trap term_handler SIGTERM
 
 if [[ $1 == "--dev" ]]; then
   echo "Starting part-supply-bff in dev mode..."
-  yarn start:debug &
+  yarn nodemon &
 else
   echo "Starting part-supply-bff in prod mode..."
   node dist/main.js &
