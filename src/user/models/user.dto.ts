@@ -84,6 +84,9 @@ export class UserDto {
     @IsOptional()
     public faxNumber: string;
     @IsNotEmpty()
+    @IsString()
+    public deliveryRadious: string;
+    @IsNotEmpty()
     @IsObject()
     @ValidateNested()
     @Type(() => RoleDto)

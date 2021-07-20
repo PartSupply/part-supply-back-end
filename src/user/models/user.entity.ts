@@ -49,6 +49,9 @@ export class UserEntity extends BaseEntity {
     @Column({ name: 'FAX_NUMBER' })
     public faxNumber: string;
 
+    @Column({ name: 'DELIVERY_RADIOUS' })
+    public deliveryRadious: string;
+
     @ManyToOne(() => RoleEntity, (role) => role.id, { eager: true })
     @JoinColumn({ name: 'USER_ROLE_ID' })
     public role: RoleEntity;

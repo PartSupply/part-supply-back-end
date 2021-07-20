@@ -43,6 +43,7 @@ export class UserService {
         userEntity.isMailDeliveryAcceptable = user.isMailDeliveryAcceptable;
         userEntity.phoneNumber = user.phoneNumber;
         userEntity.faxNumber = user.faxNumber;
+        userEntity.deliveryRadious = user.deliveryRadious;
         userEntity.role = userRole;
 
         // return from(this.userRepository.save(userEntity)).pipe(
