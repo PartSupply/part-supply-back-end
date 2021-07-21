@@ -85,7 +85,7 @@ export class UserDto {
     public faxNumber: string;
     @IsNotEmpty()
     @IsString()
-    public deliveryRadious: string;
+    public deliveryRadius: string;
     @IsNotEmpty()
     @IsObject()
     @ValidateNested()
