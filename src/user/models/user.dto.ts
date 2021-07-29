@@ -93,6 +93,12 @@ export class UserDto {
     public role?: RoleDto;
 }
 
+export type UserSessionDto = {
+    userGuid: string;
+    token: string;
+    dateTime: string;
+};
+
 export const userRoleMapper = new Map<string, number>([
     [UserRole.ADMIN, 1],
     [UserRole.BUYER, 2],

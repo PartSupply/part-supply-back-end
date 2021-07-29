@@ -1,14 +1,13 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { from, throwError } from 'rxjs';
-import { catchError, map } from 'rxjs/operators';
 import { AuthService } from './../../auth/service/auth.service';
-import { Repository } from 'typeorm';
+import { Repository, UpdateResult } from 'typeorm';
 import { RoleEntity } from '../models/role.entity';
-import { UserDto, userRoleMapper } from '../models/user.dto';
+import { UserDto, userRoleMapper, UserSessionDto } from '../models/user.dto';
 import { UserEntity } from '../models/user.entity';
 import { v4 as uuidv4 } from 'uuid';
 import { AddressEntity } from '../models/address.entity';
+import { UserSessionEntity } from '../models/user-session.entity';
 
 @Injectable()
 export class UserService {
@@ -16,6 +15,7 @@ export class UserService {
         @InjectRepository(UserEntity) private readonly userRepository: Repository<UserEntity>,
         @InjectRepository(RoleEntity) private readonly roleRepository: Repository<RoleEntity>,
         @InjectRepository(AddressEntity) private readonly addressRepository: Repository<AddressEntity>,
+        @InjectRepository(UserSessionEntity) private readonly userSessionRepository: Repository<UserSessionEntity>,
         private authService: AuthService,
     ) {}
 
@@ -46,22 +46,27 @@ export class UserService {
         userEntity.deliveryRadius = user.deliveryRadius;
         userEntity.role = userRole;
 
-        // return from(this.userRepository.save(userEntity)).pipe(
-        //     map((user: UserEntity) => {
-        //         // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        //         delete user.password;
-        //         return user;
-        //     }),
-        //     catchError((err) => throwError(err)),
-        // );
-
         return await this.userRepository.save(userEntity);
     }
 
     public async login(user: UserDto): Promise<string> {
         const userObj: UserEntity = await this.validateUser(user.email, user.password);
         if (user) {
-            return await this.authService.generateJWT(userObj);
+            const jwtString = await this.authService.generateJWT(userObj);
+            // Need to store this issued token in to user session table
+            // this stored token will be validated upon all authenticated request
+            let savedUserSession = await this.findSavedUserSessionByUserGuid(userObj.userGuid);
+            if (!savedUserSession) {
+                savedUserSession = new UserSessionEntity();
+                savedUserSession.userGuid = userObj.userGuid;
+                savedUserSession.token = jwtString;
+                savedUserSession.dateTime = new Date() + '';
+            } else {
+                savedUserSession.token = jwtString;
+                savedUserSession.dateTime = new Date() + '';
+            }
+            await this.saveUserSession(savedUserSession);
+            return jwtString;
         }
         return 'Wrong Credentials';
     }
@@ -84,5 +89,21 @@ export class UserService {
         const user: UserEntity = await this.userRepository.findOne({ id });
         delete user.password;
         return user;
+    }
+
+    public async saveUserSession(userSession: UserSessionDto): Promise<UserSessionEntity> {
+        const userSessionEntity = new UserSessionEntity();
+        userSessionEntity.userGuid = userSession.userGuid;
+        userSessionEntity.token = userSession.token;
+        userSessionEntity.dateTime = userSession.dateTime;
+        return await this.userSessionRepository.save(userSession);
+    }
+
+    public async findSavedUserSessionByUserGuid(userGuid: string): Promise<UserSessionEntity> {
+        return await this.userSessionRepository.findOne({ userGuid });
+    }
+
+    public async updateSavedUserSession(userSession: UserSessionEntity): Promise<UpdateResult> {
+        return await this.userSessionRepository.update(userSession.id, userSession);
     }
 }
