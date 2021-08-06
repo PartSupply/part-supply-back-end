@@ -9,7 +9,7 @@ export class VindecoderService {
         // https://vin-decoder7.p.rapidapi.com/vin?vin=JN8AS5MTXBW565232
         const config = {
             headers: {
-                'x-rapidapi-key': 'd6110475d9msh44a7d3aa9f4f36dp1ace69jsneb8463f67236',
+                'x-rapidapi-key': `${process.env.VIN_DECODER_API_KEY}`,
                 'x-rapidapi-host': 'vin-decoder7.p.rapidapi.com',
             },
             params: {
@@ -20,6 +20,6 @@ export class VindecoderService {
             }),
         };
 
-        return await this.httpService.get('https://vin-decoder7.p.rapidapi.com/vin', config).toPromise();
+        return await this.httpService.get(`${process.env.VIN_DECODER_API_URL}/vin`, config).toPromise();
     }
 }
