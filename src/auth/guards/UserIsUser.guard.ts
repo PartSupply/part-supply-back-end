@@ -1,9 +1,8 @@
-import { HttpStatus, Inject } from '@nestjs/common';
+import { HttpStatus, Inject, UnauthorizedException } from '@nestjs/common';
 import { forwardRef } from '@nestjs/common';
 import { ExecutionContext } from '@nestjs/common';
 import { CanActivate } from '@nestjs/common';
 import { Injectable } from '@nestjs/common';
-import { of } from 'rxjs';
 import { UserSessionEntity } from './../../user/models/user-session.entity';
 import { UserEntity } from './../../user/models/user.entity';
 import { UserService } from './../../user/service/user.service';
@@ -17,7 +16,6 @@ export class UserIsUserGuard implements CanActivate {
 
     public async canActivate(context: ExecutionContext): Promise<boolean> {
         const request = context.switchToHttp().getRequest();
-        const response = context.switchToHttp().getResponse();
         const params = request.params;
         const user: UserEntity = request.user;
 
@@ -28,9 +26,7 @@ export class UserIsUserGuard implements CanActivate {
         );
 
         if (savedUserSession.token === '') {
-            return response.status(HttpStatus.UNAUTHORIZED).json({
-                data: 'User token is invalid',
-            });
+            throw new UnauthorizedException('User token is invalid');
         }
 
         let hasPermission = false;

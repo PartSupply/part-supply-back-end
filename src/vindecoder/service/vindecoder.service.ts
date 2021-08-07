@@ -20,6 +20,7 @@ export class VindecoderService {
             }),
         };
 
-        return await this.httpService.get(`${process.env.VIN_DECODER_API_URL}/vin`, config).toPromise();
+        const response = await this.httpService.get(`${process.env.VIN_DECODER_API_URL}/vin`, config).toPromise();
+        return response;
     }
 }
