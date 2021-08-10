@@ -31,7 +31,9 @@ export class UserController {
             }
         }
         // Befor sending back remove the password
-        delete createdUser.password;
+        if (createdUser.password) {
+            delete createdUser.password;
+        }
         return {
             data: createdUser,
         };

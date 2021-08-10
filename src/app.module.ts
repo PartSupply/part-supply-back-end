@@ -6,6 +6,7 @@ import { AppService } from './app.service';
 import { UserModule } from './user/user.module';
 import { AuthModule } from './auth/auth.module';
 import { VindecoderModule } from './vindecoder/vindecoder.module';
+import { BuyerModule } from './buyer/buyer.module';
 
 @Module({
     imports: [
@@ -25,6 +26,7 @@ import { VindecoderModule } from './vindecoder/vindecoder.module';
         UserModule,
         AuthModule,
         VindecoderModule,
+        BuyerModule,
     ],
     controllers: [AppController],
     providers: [AppService],

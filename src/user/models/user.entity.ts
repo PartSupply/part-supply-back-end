@@ -1,3 +1,4 @@
+import { PartRequsetEntity } from './../../buyer/models/part.entity';
 import {
     BaseEntity,
     BeforeInsert,
@@ -5,6 +6,7 @@ import {
     Entity,
     JoinColumn,
     ManyToOne,
+    OneToMany,
     OneToOne,
     PrimaryGeneratedColumn,
     Unique,
@@ -49,12 +51,15 @@ export class UserEntity extends BaseEntity {
     @Column({ name: 'FAX_NUMBER' })
     public faxNumber: string;
 
-    @Column({ name: 'DELIVERY_RADIUS' })
+    @Column({ name: 'DELIVERY_RADIUS', nullable: true })
     public deliveryRadius: string;
 
     @ManyToOne(() => RoleEntity, (role) => role.id, { eager: true })
     @JoinColumn({ name: 'USER_ROLE_ID' })
     public role: RoleEntity;
+
+    @OneToMany(() => PartRequsetEntity, (partRequest) => partRequest.id, { eager: false })
+    public partsRequest: PartRequsetEntity[];
 
     @BeforeInsert()
     public emailToLowerCase() {

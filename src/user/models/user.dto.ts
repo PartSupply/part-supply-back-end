@@ -83,8 +83,6 @@ export class UserDto {
     public phoneNumber: string;
     @IsOptional()
     public faxNumber: string;
-    @IsNotEmpty()
-    @IsString()
     public deliveryRadius: string;
     @IsNotEmpty()
     @IsObject()
