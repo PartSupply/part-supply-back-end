@@ -21,6 +21,7 @@ export class BuyerController {
         @Req() request,
         @Body(ValidationPipe) partRequest: PartRequestDto,
     ): Promise<ResponseType<any>> {
+        console.log('test');
         partRequest.user = request.user;
         const savedPartRequest = await this.buyerService.savePartRequest(partRequest);
         delete savedPartRequest.user;
