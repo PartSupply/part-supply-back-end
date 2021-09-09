@@ -1,40 +1,24 @@
-import { Body, Controller, Get, Post, UseGuards, ValidationPipe } from '@nestjs/common';
-import { PartRequestDto } from '../models/part.dto';
-import { ResponseType } from '../../utilities/responseType';
-import { hasRoles } from './../../auth/decorators/roles.decorator';
+import { Get, UseGuards } from '@nestjs/common';
+import { Controller } from '@nestjs/common';
 import { RolesGuard } from './../../auth/guards/roles.guard';
+import { hasRoles } from './../../auth/decorators/roles.decorator';
 import { JwtAuthGuard } from './../../auth/guards/jwt-guard';
-import { UserIsUserGuard } from './../../auth/guards/UserIsUser.guard';
-import { BuyerService } from '../service/buyer.service';
 import { UserRole } from './../../user/models/user.dto';
-import { Req } from '@nestjs/common';
-import { PartRequsetEntity } from '../models/part.entity';
+import { UserIsUserGuard } from './../../auth/guards/UserIsUser.guard';
+import { ResponseType } from '../../utilities/responseType';
+import { SellerService } from '../service/seller.service';
+import { PartRequsetEntity } from './../../buyer/models/part.entity';
+import { PartRequestDto } from './../../buyer/models/part.dto';
 
-@Controller('buyer')
-export class BuyerController {
-    constructor(private buyerService: BuyerService) {}
+@Controller('seller')
+export class SellerController {
+    constructor(private sellerService: SellerService) {}
 
-    @hasRoles(UserRole.BUYER, UserRole.ADMIN)
-    @UseGuards(JwtAuthGuard, RolesGuard, UserIsUserGuard)
-    @Post('submitPartRequest')
-    public async submitPartRequest(
-        @Req() request,
-        @Body(ValidationPipe) partRequest: PartRequestDto,
-    ): Promise<ResponseType<any>> {
-        partRequest.user = request.user;
-        const savedPartRequest = await this.buyerService.savePartRequest(partRequest);
-        delete savedPartRequest.user;
-        return {
-            data: this.trasformPartTypeRequestToDto(savedPartRequest),
-        };
-    }
-
-    @hasRoles(UserRole.BUYER, UserRole.ADMIN)
+    @hasRoles(UserRole.SELLER, UserRole.ADMIN)
     @UseGuards(JwtAuthGuard, RolesGuard, UserIsUserGuard)
     @Get('partsRequest')
-    public async returnPartsRequest(@Req() request): Promise<ResponseType<any>> {
-        const loggedInUserId = request.user.id;
-        const partRequest: PartRequsetEntity[] = await this.buyerService.returnPartRequstList(loggedInUserId);
+    public async returnPartsRequest(): Promise<ResponseType<any>> {
+        const partRequest: PartRequsetEntity[] = await this.sellerService.returnPartRequstList();
         return {
             data: this.transformPartsRequestToDto(partRequest),
         };

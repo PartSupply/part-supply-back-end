@@ -7,6 +7,7 @@ import { UserModule } from './user/user.module';
 import { AuthModule } from './auth/auth.module';
 import { VindecoderModule } from './vindecoder/vindecoder.module';
 import { BuyerModule } from './buyer/buyer.module';
+import { SellerModule } from './seller/seller.module';
 
 @Module({
     imports: [
@@ -27,6 +28,7 @@ import { BuyerModule } from './buyer/buyer.module';
         AuthModule,
         VindecoderModule,
         BuyerModule,
+        SellerModule,
     ],
     controllers: [AppController],
     providers: [AppService],

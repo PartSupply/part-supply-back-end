@@ -73,7 +73,7 @@ export class UserService {
 
     public async validateUser(email: string, password: string): Promise<UserEntity> {
         const user: UserEntity = await this.findUserByEmail(email);
-        const isValidUser = this.authService.comparePasswords(password, user.password);
+        const isValidUser = await this.authService.comparePasswords(password, user.password);
         if (isValidUser) {
             delete user.password;
             return user;
