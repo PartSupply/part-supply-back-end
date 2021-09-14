@@ -1,6 +1,6 @@
 import { Type } from 'class-transformer';
 import { IsBoolean, IsEnum, IsNotEmpty, IsNumber, IsObject, IsString, ValidateNested } from 'class-validator';
-import { UserEntity } from 'src/user/models/user.entity';
+import { UserEntity } from './../../user/models/user.entity';
 
 export class PartTypeDto {
     @IsNotEmpty()

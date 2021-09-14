@@ -13,6 +13,7 @@ import {
 } from 'typeorm';
 import { AddressEntity } from './address.entity';
 import { RoleEntity } from './role.entity';
+import { PartBidRequestEntity } from './../../seller/models/partBidRequest.entity';
 
 @Entity({ name: 'USER' })
 @Unique('UNIQUE_USER_GUID_EMAIL', ['userGuid', 'email'])
@@ -60,6 +61,9 @@ export class UserEntity extends BaseEntity {
 
     @OneToMany(() => PartRequsetEntity, (partRequest) => partRequest.id, { eager: false })
     public partsRequest: PartRequsetEntity[];
+
+    @OneToMany(() => PartBidRequestEntity, (partBidRequest) => partBidRequest.id, { eager: false })
+    public partBidsRequest: PartBidRequestEntity[];
 
     @BeforeInsert()
     public emailToLowerCase() {

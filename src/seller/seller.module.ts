@@ -5,9 +5,10 @@ import { AuthModule } from './../auth/auth.module';
 import { SellerController } from './controller/seller.controller';
 import { SellerService } from './service/seller.service';
 import { PartRequsetEntity } from './../buyer/models/part.entity';
+import { PartBidRequestEntity } from './models/partBidRequest.entity';
 
 @Module({
-    imports: [TypeOrmModule.forFeature([PartRequsetEntity]), AuthModule, UserModule],
+    imports: [TypeOrmModule.forFeature([PartRequsetEntity, PartBidRequestEntity]), AuthModule, UserModule],
     providers: [SellerService],
     controllers: [SellerController],
     exports: [SellerService],

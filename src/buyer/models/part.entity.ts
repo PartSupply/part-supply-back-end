@@ -1,6 +1,7 @@
 import { UserEntity } from './../../user/models/user.entity';
-import { BaseEntity, Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import { BaseEntity, Column, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 import { OfferStatus } from './part.dto';
+import { PartBidRequestEntity } from './../../seller/models/partBidRequest.entity';
 
 @Entity({ name: 'PARTS_REQUEST' })
 export class PartRequsetEntity extends BaseEntity {
@@ -40,4 +41,7 @@ export class PartRequsetEntity extends BaseEntity {
     @ManyToOne(() => UserEntity, { eager: false })
     @JoinColumn({ name: 'USER_ID', referencedColumnName: 'id' })
     public user: UserEntity;
+
+    @OneToMany(() => PartBidRequestEntity, (partBidRequest) => partBidRequest.id, { eager: false })
+    public partBidsRequest: PartBidRequestEntity[];
 }
