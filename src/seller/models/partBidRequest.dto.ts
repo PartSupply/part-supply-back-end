@@ -30,7 +30,7 @@ export class PartBidRequestDto {
     public partBrand: string;
 
     @IsNotEmpty()
-    @IsNumber()
+    @IsString()
     public estDeliveryTime: string;
 
     @IsString()
