@@ -64,5 +64,6 @@ export type SellerBidRequestStatus = {
     brand: string;
     partRequestId: number;
     bidId: number;
+    sellerId: number,
     bidStandingStatus: BidStandingStatusEnum;
 };

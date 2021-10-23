@@ -30,7 +30,7 @@ export class PartBidRequestEntity extends BaseEntity {
     @JoinColumn({ name: 'PART_REQUEST_ID', referencedColumnName: 'id' })
     public partRequest: PartRequsetEntity;
 
-    @ManyToOne(() => UserEntity, { eager: false })
+    @ManyToOne(() => UserEntity, { eager: true })
     @JoinColumn({ name: 'USER_ID', referencedColumnName: 'id' })
     public user: UserEntity;
 }

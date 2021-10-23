@@ -1,4 +1,4 @@
-import { Get, Post, UseGuards } from '@nestjs/common';
+import { Get, InternalServerErrorException, Post, UseGuards } from '@nestjs/common';
 import { Controller } from '@nestjs/common';
 import { RolesGuard } from './../../auth/guards/roles.guard';
 import { hasRoles } from './../../auth/decorators/roles.decorator';
@@ -21,8 +21,8 @@ export class SellerController {
     @hasRoles(UserRole.SELLER, UserRole.ADMIN)
     @UseGuards(JwtAuthGuard, RolesGuard, UserIsUserGuard)
     @Get('partsRequest')
-    public async returnPartsRequest(): Promise<ResponseType<any>> {
-        const partRequest: PartRequsetEntity[] = await this.sellerService.returnPartRequstList();
+    public async returnPartsRequest(@Req() request): Promise<ResponseType<any>> {
+        const partRequest: PartRequsetEntity[] = await this.sellerService.returnPartRequstList(request.user.id);
         return {
             data: this.transformPartsRequestToDto(partRequest),
         };
@@ -36,6 +36,14 @@ export class SellerController {
         @Body(ValidationPipe) partBidRequest: PartBidRequestDto,
     ): Promise<ResponseType<any>> {
         partBidRequest.user = request.user;
+        // Check here if seller has already put requet for this part or not
+        const isSellerAlreadyPutBidRequest = this.sellerService.isBidRequestAlreadyPresentForThePart(
+            request.user.id,
+            partBidRequest.partRequest.id,
+        );
+        if (isSellerAlreadyPutBidRequest) {
+            throw new InternalServerErrorException('Seller has already put an offer for this part');
+        }
         const savedPartBidRequest = await this.sellerService.savePartBidRequest(partBidRequest);
         delete savedPartBidRequest.user;
 

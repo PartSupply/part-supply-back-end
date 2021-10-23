@@ -19,8 +19,23 @@ export class SellerService {
         private readonly partBidRequestRepository: Repository<PartBidRequestEntity>,
     ) {}
 
-    public async returnPartRequstList(): Promise<PartRequsetEntity[]> {
-        return await this.partRequestRepository.find({ where: { offerStatus: OfferStatus.OPEN } });
+    public async returnPartRequstList(userId: string): Promise<PartRequsetEntity[]> {
+        const partRequestList: PartRequsetEntity[] = await this.partRequestRepository.find({
+            where: { offerStatus: OfferStatus.OPEN },
+        });
+        const finalPartRequestList: PartRequsetEntity[] = [];
+
+        for (const partRequest of partRequestList) {
+            const isSellerHasAlreadyPutRequest = await this.isBidRequestAlreadyPresentForThePart(
+                userId,
+                partRequest.id,
+            );
+            if (!isSellerHasAlreadyPutRequest) {
+                finalPartRequestList.push(partRequest);
+            }
+        }
+
+        return finalPartRequestList;
     }
 
     public async savePartBidRequest(partBidRequest: PartBidRequestDto): Promise<PartBidRequestEntity> {
@@ -37,6 +52,14 @@ export class SellerService {
         return await this.partBidRequestRepository.save(partBidRequestEntity);
     }
 
+    public async isBidRequestAlreadyPresentForThePart(sellerUserId: string, partRequestId): Promise<boolean> {
+        const sellerBidRequestList: PartBidRequestEntity[] = await this.partBidRequestRepository.find({
+            where: { user: { id: sellerUserId }, partRequest: { id: partRequestId } },
+        });
+
+        return sellerBidRequestList.length > 0 ? true : false;
+    }
+
     public async getListOfBidStatus(sellerUserId: string): Promise<SellerBidRequestStatus[]> {
         const sellerBidRequestList: PartBidRequestEntity[] = await this.partBidRequestRepository.find({
             where: { user: { id: sellerUserId } },
@@ -44,7 +67,7 @@ export class SellerService {
         });
 
         const sellerBidRequestStatusList: SellerBidRequestStatus[] = [];
-        // Next thing is to find the best bid request for each selletBid
+        // Next thing is to find the best bid request for each seller Bid
         for (const bidRequest of sellerBidRequestList) {
             const result: PartBidRequestEntity[] = await this.partBidRequestRepository.find({
                 where: { partRequest: { id: bidRequest.partRequest.id } },
@@ -52,22 +75,26 @@ export class SellerService {
                     bidAmount: 'ASC',
                 },
             });
+
             const winningBidRequest: PartBidRequestEntity = result[0];
-            const sellerBidRequestStatus: SellerBidRequestStatus = {
-                year: bidRequest.partRequest.year,
-                make: bidRequest.partRequest.make,
-                model: bidRequest.partRequest.model,
-                part: bidRequest.partRequest.partName,
-                bid: winningBidRequest.bidAmount,
-                warranty: winningBidRequest.bidWarranty,
-                brand: winningBidRequest.partBrand,
-                partRequestId: bidRequest.id,
-                bidId: winningBidRequest.id,
-                bidStandingStatus: this.getBidStandingStatus(bidRequest, winningBidRequest),
-            };
-            sellerBidRequestStatusList.push(sellerBidRequestStatus);
+            result.forEach((parthBidRequest: PartBidRequestEntity) => {
+                const sellerBidRequestStatus: SellerBidRequestStatus = {
+                    year: bidRequest.partRequest.year,
+                    make: bidRequest.partRequest.make,
+                    model: bidRequest.partRequest.model,
+                    part: bidRequest.partRequest.partName,
+                    bid: parthBidRequest.bidAmount,
+                    warranty: parthBidRequest.bidWarranty,
+                    brand: parthBidRequest.partBrand,
+                    partRequestId: parthBidRequest.id,
+                    bidId: parthBidRequest.id,
+                    sellerId: parthBidRequest.user.id,
+                    bidStandingStatus: this.getBidStandingStatus(parthBidRequest, winningBidRequest),
+                };
+                sellerBidRequestStatusList.push(sellerBidRequestStatus);
+            });
         }
-       return sellerBidRequestStatusList;
+        return sellerBidRequestStatusList;
     }
 
     private getBidStandingStatus(
