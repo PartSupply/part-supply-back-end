@@ -40,6 +40,9 @@ export class SellerService {
 
     public async savePartBidRequest(partBidRequest: PartBidRequestDto): Promise<PartBidRequestEntity> {
         const partBidRequestEntity = new PartBidRequestEntity();
+        if (partBidRequest.id) {
+            partBidRequestEntity.id = partBidRequest.id;
+        }
         partBidRequestEntity.bidAmount = partBidRequest.bidAmount;
         partBidRequestEntity.bidWarranty = partBidRequest.bidWarranty;
         partBidRequestEntity.partBrand = partBidRequest.partBrand;
@@ -77,24 +80,30 @@ export class SellerService {
             });
 
             const winningBidRequest: PartBidRequestEntity = result[0];
-            result.forEach((parthBidRequest: PartBidRequestEntity) => {
+            result.forEach((partBidRequest: PartBidRequestEntity) => {
                 const sellerBidRequestStatus: SellerBidRequestStatus = {
                     year: bidRequest.partRequest.year,
                     make: bidRequest.partRequest.make,
                     model: bidRequest.partRequest.model,
                     part: bidRequest.partRequest.partName,
-                    bid: parthBidRequest.bidAmount,
-                    warranty: parthBidRequest.bidWarranty,
-                    brand: parthBidRequest.partBrand,
-                    partRequestId: parthBidRequest.id,
-                    bidId: parthBidRequest.id,
-                    sellerId: parthBidRequest.user.id,
-                    bidStandingStatus: this.getBidStandingStatus(parthBidRequest, winningBidRequest),
+                    bid: partBidRequest.bidAmount,
+                    warranty: partBidRequest.bidWarranty,
+                    brand: partBidRequest.partBrand,
+                    partRequestId: bidRequest.partRequest.id,
+                    bidId: partBidRequest.id,
+                    sellerId: partBidRequest.user.id,
+                    bidStandingStatus: this.getBidStandingStatus(partBidRequest, winningBidRequest),
                 };
                 sellerBidRequestStatusList.push(sellerBidRequestStatus);
             });
         }
         return sellerBidRequestStatusList;
+    }
+
+    public async getPartBidRequest(partRequestId: number, userId: number): Promise<PartBidRequestEntity[]> {
+        return await this.partBidRequestRepository.find({
+            where: { partRequest: { id: partRequestId }, user: { id: userId } },
+        });
     }
 
     private getBidStandingStatus(

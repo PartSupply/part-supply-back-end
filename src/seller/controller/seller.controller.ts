@@ -1,4 +1,4 @@
-import { Get, InternalServerErrorException, Post, UseGuards } from '@nestjs/common';
+import { Get, InternalServerErrorException, Post, Put, UseGuards } from '@nestjs/common';
 import { Controller } from '@nestjs/common';
 import { RolesGuard } from './../../auth/guards/roles.guard';
 import { hasRoles } from './../../auth/decorators/roles.decorator';
@@ -46,6 +46,36 @@ export class SellerController {
         }
         const savedPartBidRequest = await this.sellerService.savePartBidRequest(partBidRequest);
         delete savedPartBidRequest.user;
+
+        return {
+            data: savedPartBidRequest,
+        };
+    }
+
+    @hasRoles(UserRole.SELLER, UserRole.ADMIN)
+    @UseGuards(JwtAuthGuard, RolesGuard, UserIsUserGuard)
+    @Put('partBidRequest')
+    public async updatePartBidRequest(
+        @Req() request,
+        @Body(ValidationPipe) partBidRequest: PartBidRequestDto,
+    ): Promise<ResponseType<any>> {
+        // First get part bid request
+        const savedPartBidRequest = await this.sellerService.getPartBidRequest(
+            partBidRequest.partRequest.id,
+            request.user.id,
+        );
+        if (!savedPartBidRequest.length || savedPartBidRequest[0].id !== partBidRequest.id) {
+            throw new InternalServerErrorException('User is not allowrd to perform update operation');
+        }
+        // Check if this user only has submitted request
+        if (savedPartBidRequest[0].user.id !== request.user.id) {
+            throw new InternalServerErrorException('User is not authrorized to perform this udpate operation');
+        }
+
+        // Update the record now
+        partBidRequest.user = request.user;
+        await this.sellerService.savePartBidRequest(partBidRequest);
+        delete savedPartBidRequest[0].user;
 
         return {
             data: savedPartBidRequest,
