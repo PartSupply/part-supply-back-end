@@ -45,4 +45,12 @@ export class BuyerService {
         });
         return finalResult;
     }
+
+    public async getPartRequestById(partRequestId: number): Promise<PartRequsetEntity> {
+        return await this.partRequestRepository.findOne({ id: partRequestId });
+    }
+
+    public async updatePartRequest(partRequest: PartRequsetEntity): Promise<void> {
+        await this.partRequestRepository.save(partRequest);
+    }
 }

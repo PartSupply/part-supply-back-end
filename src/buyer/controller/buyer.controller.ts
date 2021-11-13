@@ -1,5 +1,5 @@
 import { Body, Controller, Get, Param, Post, UseGuards, ValidationPipe } from '@nestjs/common';
-import { PartRequestDto } from '../models/part.dto';
+import { OfferStatus, PartRequestDto, PartRequestIdDto } from '../models/part.dto';
 import { ResponseType } from '../../utilities/responseType';
 import { hasRoles } from './../../auth/decorators/roles.decorator';
 import { RolesGuard } from './../../auth/guards/roles.guard';
@@ -47,6 +47,21 @@ export class BuyerController {
         const partOfferRequestList = await this.buyerService.getPartOffersList(id);
         return {
             data: partOfferRequestList,
+        };
+    }
+
+    @hasRoles(UserRole.BUYER, UserRole.ADMIN)
+    @UseGuards(JwtAuthGuard, RolesGuard, UserIsUserGuard)
+    @Post('acceptPartOffer')
+    public async acceptPartOfferRequest(
+        @Req() request,
+        @Body(ValidationPipe) partRequestIdDto: PartRequestIdDto,
+    ): Promise<ResponseType<any>> {
+        const partRequest = await this.buyerService.getPartRequestById(+partRequestIdDto.id);
+        partRequest.offerStatus = OfferStatus.ACCEPTED;
+        await this.buyerService.updatePartRequest(partRequest);
+        return {
+            data: 'status changed to accepted for this part request',
         };
     }
 

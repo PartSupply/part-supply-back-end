@@ -19,6 +19,12 @@ export enum OfferStatus {
     OPEN = 'OPEN',
 }
 
+export class PartRequestIdDto {
+    @IsNotEmpty()
+    @IsString()
+    public id: number;
+}
+
 export class PartRequestDto {
     public id?: number;
 
