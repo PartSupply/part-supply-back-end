@@ -34,16 +34,18 @@ export class BuyerService {
         return await this.partRequestRepository.find({ where: { user: { id: userId } } });
     }
 
-    public async getPartOffersList(partRequestId: string): Promise<PartBidRequestEntity[]> {
+    public async getPartOffersList(partRequestId: string): Promise<any> {
         const sellerBidRequestList: PartBidRequestEntity[] = await this.partBidRequestRepository.find({
             where: { partRequest: { id: partRequestId } },
         });
+
+        const partRequsetEntity = await this.getPartRequestById(+partRequestId);
         const finalResult: PartBidRequestEntity[] = [];
         sellerBidRequestList.forEach((seller) => {
             delete seller.user;
             finalResult.push(seller);
         });
-        return finalResult;
+        return { partRequest: partRequsetEntity, partOffers: finalResult };
     }
 
     public async getPartRequestById(partRequestId: number): Promise<PartRequsetEntity> {
