@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { PartBidRequestEntity } from '../../seller/models/partBidRequest.entity';
 import { Repository } from 'typeorm';
 import { PartRequestDto } from '../models/part.dto';
 import { PartRequsetEntity } from '../models/part.entity';
@@ -8,6 +9,8 @@ import { PartRequsetEntity } from '../models/part.entity';
 export class BuyerService {
     constructor(
         @InjectRepository(PartRequsetEntity) private readonly partRequestRepository: Repository<PartRequsetEntity>,
+        @InjectRepository(PartBidRequestEntity)
+        private readonly partBidRequestRepository: Repository<PartBidRequestEntity>,
     ) {}
 
     public async savePartRequest(partRequest: PartRequestDto): Promise<PartRequsetEntity> {
@@ -29,5 +32,17 @@ export class BuyerService {
 
     public async returnPartRequstList(userId: string): Promise<PartRequsetEntity[]> {
         return await this.partRequestRepository.find({ where: { user: { id: userId } } });
+    }
+
+    public async getPartOffersList(partRequestId: string): Promise<PartBidRequestEntity[]> {
+        const sellerBidRequestList: PartBidRequestEntity[] = await this.partBidRequestRepository.find({
+            where: { partRequest: { id: partRequestId } },
+        });
+        const finalResult: PartBidRequestEntity[] = [];
+        sellerBidRequestList.forEach((seller) => {
+            delete seller.user;
+            finalResult.push(seller);
+        });
+        return finalResult;
     }
 }

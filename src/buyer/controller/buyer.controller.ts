@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post, UseGuards, ValidationPipe } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, UseGuards, ValidationPipe } from '@nestjs/common';
 import { PartRequestDto } from '../models/part.dto';
 import { ResponseType } from '../../utilities/responseType';
 import { hasRoles } from './../../auth/decorators/roles.decorator';
@@ -37,6 +37,16 @@ export class BuyerController {
         const partRequest: PartRequsetEntity[] = await this.buyerService.returnPartRequstList(loggedInUserId);
         return {
             data: this.transformPartsRequestToDto(partRequest),
+        };
+    }
+
+    @hasRoles(UserRole.BUYER, UserRole.ADMIN)
+    @UseGuards(JwtAuthGuard, RolesGuard, UserIsUserGuard)
+    @Get('partOffers/:id')
+    public async returnPartOffers(@Req() request, @Param('id') id): Promise<ResponseType<any>> {
+        const partOfferRequestList = await this.buyerService.getPartOffersList(id);
+        return {
+            data: partOfferRequestList,
         };
     }
 

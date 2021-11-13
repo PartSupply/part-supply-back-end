@@ -22,7 +22,7 @@ export class SellerController {
     @UseGuards(JwtAuthGuard, RolesGuard, UserIsUserGuard)
     @Get('partsRequest')
     public async returnPartsRequest(@Req() request): Promise<ResponseType<any>> {
-        const partRequest: PartRequsetEntity[] = await this.sellerService.returnPartRequstList(request.user.id);
+        const partRequest: PartRequsetEntity[] = await this.sellerService.returnPartRequestList(request.user.id);
         return {
             data: this.transformPartsRequestToDto(partRequest),
         };
@@ -36,8 +36,8 @@ export class SellerController {
         @Body(ValidationPipe) partBidRequest: PartBidRequestDto,
     ): Promise<ResponseType<any>> {
         partBidRequest.user = request.user;
-        // Check here if seller has already put requet for this part or not
-        const isSellerAlreadyPutBidRequest = this.sellerService.isBidRequestAlreadyPresentForThePart(
+        // Check here if seller has already put request for this part or not
+        const isSellerAlreadyPutBidRequest = await this.sellerService.isBidRequestAlreadyPresentForThePart(
             request.user.id,
             partBidRequest.partRequest.id,
         );
@@ -47,6 +47,10 @@ export class SellerController {
         const savedPartBidRequest = await this.sellerService.savePartBidRequest(partBidRequest);
         delete savedPartBidRequest.user;
 
+        // Update # of offers
+        const partRequest = await this.sellerService.getPartRequestById(partBidRequest.partRequest.id);
+        partRequest.numberOfOffers = partRequest.numberOfOffers + 1;
+        await this.sellerService.savePartRequest(partRequest);
         return {
             data: savedPartBidRequest,
         };
@@ -65,11 +69,11 @@ export class SellerController {
             request.user.id,
         );
         if (!savedPartBidRequest.length || savedPartBidRequest[0].id !== partBidRequest.id) {
-            throw new InternalServerErrorException('User is not allowrd to perform update operation');
+            throw new InternalServerErrorException('User is not allowed to perform update operation');
         }
         // Check if this user only has submitted request
         if (savedPartBidRequest[0].user.id !== request.user.id) {
-            throw new InternalServerErrorException('User is not authrorized to perform this udpate operation');
+            throw new InternalServerErrorException('User is not authorized to perform this update operation');
         }
 
         // Update the record now

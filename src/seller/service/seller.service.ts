@@ -19,7 +19,7 @@ export class SellerService {
         private readonly partBidRequestRepository: Repository<PartBidRequestEntity>,
     ) {}
 
-    public async returnPartRequstList(userId: string): Promise<PartRequsetEntity[]> {
+    public async returnPartRequestList(userId: string): Promise<PartRequsetEntity[]> {
         const partRequestList: PartRequsetEntity[] = await this.partRequestRepository.find({
             where: { offerStatus: OfferStatus.OPEN },
         });
@@ -36,6 +36,16 @@ export class SellerService {
         }
 
         return finalPartRequestList;
+    }
+
+    public async getPartRequestById(userId: number): Promise<PartRequsetEntity> {
+        const partRequest: PartRequsetEntity = await this.partRequestRepository.findOne({ id: userId });
+
+        return partRequest;
+    }
+
+    public async savePartRequest(partRequest: PartRequsetEntity) {
+        await this.partRequestRepository.save(partRequest);
     }
 
     public async savePartBidRequest(partBidRequest: PartBidRequestDto): Promise<PartBidRequestEntity> {
@@ -93,6 +103,8 @@ export class SellerService {
                     bidId: partBidRequest.id,
                     sellerId: partBidRequest.user.id,
                     bidStandingStatus: this.getBidStandingStatus(partBidRequest, winningBidRequest),
+                    estDeliveryTime: partBidRequest.estDeliveryTime,
+                    partType: partBidRequest.typeOfPart,
                 };
                 sellerBidRequestStatusList.push(sellerBidRequestStatus);
             });
