@@ -68,4 +68,6 @@ export type SellerBidRequestStatus = {
     bidStandingStatus: BidStandingStatusEnum;
     estDeliveryTime: string;
     partType: string;
+    isOfferAccepted: boolean;
+    buyerId: number;
 };

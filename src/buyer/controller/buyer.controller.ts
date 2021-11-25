@@ -1,5 +1,5 @@
-import { Body, Controller, Get, Param, Post, UseGuards, ValidationPipe } from '@nestjs/common';
-import { OfferStatus, PartRequestDto, PartRequestIdDto } from '../models/part.dto';
+import { Body, Controller, Get, Param, Post, Query, UseGuards, ValidationPipe } from '@nestjs/common';
+import { GetQuestionBuyerDto, OfferStatus, PartRequestDto, PartRequestIdDto, PostAnswerDto } from '../models/part.dto';
 import { ResponseType } from '../../utilities/responseType';
 import { hasRoles } from './../../auth/decorators/roles.decorator';
 import { RolesGuard } from './../../auth/guards/roles.guard';
@@ -9,10 +9,11 @@ import { BuyerService } from '../service/buyer.service';
 import { UserRole } from './../../user/models/user.dto';
 import { Req } from '@nestjs/common';
 import { PartRequsetEntity } from '../models/part.entity';
+import { SellerService } from './../../seller/service/seller.service';
 
 @Controller('buyer')
 export class BuyerController {
-    constructor(private buyerService: BuyerService) {}
+    constructor(private buyerService: BuyerService, private sellerService: SellerService) {}
 
     @hasRoles(UserRole.BUYER, UserRole.ADMIN)
     @UseGuards(JwtAuthGuard, RolesGuard, UserIsUserGuard)
@@ -59,9 +60,51 @@ export class BuyerController {
     ): Promise<ResponseType<any>> {
         const partRequest = await this.buyerService.getPartRequestById(+partRequestIdDto.id);
         partRequest.offerStatus = OfferStatus.ACCEPTED;
+
+        await this.sellerService.updatePartBidRequestOfferStatus(+partRequestIdDto.bidRequestId);
         await this.buyerService.updatePartRequest(partRequest);
         return {
             data: 'status changed to accepted for this part request',
+        };
+    }
+
+    @hasRoles(UserRole.BUYER, UserRole.ADMIN)
+    @UseGuards(JwtAuthGuard, RolesGuard, UserIsUserGuard)
+    @Post('postAnswer')
+    public async postAnswer(
+        @Req() request,
+        @Body(ValidationPipe) postAnswerDto: PostAnswerDto,
+    ): Promise<ResponseType<any>> {
+        await this.buyerService.saveAnswer(postAnswerDto);
+        return {
+            data: 'Answer saved Successfully',
+        };
+    }
+
+    @hasRoles(UserRole.BUYER, UserRole.ADMIN)
+    @UseGuards(JwtAuthGuard, RolesGuard, UserIsUserGuard)
+    @Post('questionAnswer')
+    public async getAllQuestionAnswer(
+        @Req() request,
+        @Body(ValidationPipe) getQuestionDto: GetQuestionBuyerDto,
+    ): Promise<ResponseType<any>> {
+        const response = await this.sellerService.getQuestionAnswerForBuyer(getQuestionDto);
+        return {
+            data: response,
+        };
+    }
+
+    @hasRoles(UserRole.BUYER, UserRole.ADMIN)
+    @UseGuards(JwtAuthGuard, RolesGuard, UserIsUserGuard)
+    @Get('sellerInformation')
+    public async getSellerInformation(
+        @Req() request,
+        @Query('partRequestId') partRequestId: number,
+        @Query('partBidRequestId') partBidRequestId: number,
+    ): Promise<ResponseType<any>> {
+        const response = await this.sellerService.getSellerInformation(partRequestId, partBidRequestId);
+        return {
+            data: response,
         };
     }
 

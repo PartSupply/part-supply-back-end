@@ -1,9 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { PartBidRequestEntity } from '../../seller/models/partBidRequest.entity';
-import { Repository } from 'typeorm';
-import { PartRequestDto } from '../models/part.dto';
+import { getConnection, Repository } from 'typeorm';
+import { PartRequestDto, PostAnswerDto } from '../models/part.dto';
 import { PartRequsetEntity } from '../models/part.entity';
+import { QuestionAnswerEntity } from '../../seller/models/questionAnswer.entity';
 
 @Injectable()
 export class BuyerService {
@@ -11,6 +12,8 @@ export class BuyerService {
         @InjectRepository(PartRequsetEntity) private readonly partRequestRepository: Repository<PartRequsetEntity>,
         @InjectRepository(PartBidRequestEntity)
         private readonly partBidRequestRepository: Repository<PartBidRequestEntity>,
+        @InjectRepository(QuestionAnswerEntity)
+        private readonly questionAnswerRepository: Repository<QuestionAnswerEntity>,
     ) {}
 
     public async savePartRequest(partRequest: PartRequestDto): Promise<PartRequsetEntity> {
@@ -54,5 +57,14 @@ export class BuyerService {
 
     public async updatePartRequest(partRequest: PartRequsetEntity): Promise<void> {
         await this.partRequestRepository.save(partRequest);
+    }
+
+    public async saveAnswer(postAnswerDto: PostAnswerDto): Promise<void> {
+        await getConnection()
+            .createQueryBuilder()
+            .update(QuestionAnswerEntity)
+            .set({ answer: postAnswerDto.answer, isAnswered: true })
+            .where('id = :id', { id: postAnswerDto.id })
+            .execute();
     }
 }

@@ -23,6 +23,20 @@ export class PartRequestIdDto {
     @IsNotEmpty()
     @IsString()
     public id: number;
+
+    @IsNotEmpty()
+    @IsString()
+    public bidRequestId: number;
+}
+
+export class PostAnswerDto {
+    @IsNotEmpty()
+    @IsNumber()
+    public id: string;
+
+    @IsString()
+    @IsNotEmpty()
+    public answer: string;
 }
 
 export class PartRequestDto {
@@ -64,4 +78,46 @@ export class PartRequestDto {
     public offerStatus: OfferStatus;
 
     public user: UserEntity;
+}
+
+export class PostQuestionDto {
+    public id?: number;
+
+    @IsNotEmpty()
+    @IsString()
+    public question: string;
+
+    @IsNotEmpty()
+    @IsNumber()
+    public sellerId: number;
+
+    @IsNotEmpty()
+    @IsNumber()
+    public partRequestId: number;
+
+    public partBidRequestId?: number;
+
+    @IsNotEmpty()
+    @IsBoolean()
+    public isAnswered: boolean;
+}
+
+export class GetQuestionDto {
+    @IsNotEmpty()
+    @IsNumber()
+    public sellerId: number;
+
+    public partBidId?: number;
+
+    public partRequestId?: number;
+}
+
+export class GetQuestionBuyerDto {
+    @IsNotEmpty()
+    @IsNumber()
+    public buyerId: number;
+
+    @IsNotEmpty()
+    @IsNumber()
+    public partBidId: number;
 }

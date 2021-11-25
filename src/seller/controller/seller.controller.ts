@@ -1,4 +1,4 @@
-import { Get, InternalServerErrorException, Post, Put, UseGuards } from '@nestjs/common';
+import { Get, InternalServerErrorException, Post, Put, Query, UseGuards } from '@nestjs/common';
 import { Controller } from '@nestjs/common';
 import { RolesGuard } from './../../auth/guards/roles.guard';
 import { hasRoles } from './../../auth/decorators/roles.decorator';
@@ -8,7 +8,7 @@ import { UserIsUserGuard } from './../../auth/guards/UserIsUser.guard';
 import { ResponseType } from '../../utilities/responseType';
 import { SellerService } from '../service/seller.service';
 import { PartRequsetEntity } from './../../buyer/models/part.entity';
-import { PartRequestDto } from './../../buyer/models/part.dto';
+import { GetQuestionDto, PartRequestDto, PostQuestionDto } from './../../buyer/models/part.dto';
 import { Req } from '@nestjs/common';
 import { Body } from '@nestjs/common';
 import { ValidationPipe } from '@nestjs/common';
@@ -93,6 +93,47 @@ export class SellerController {
         const result: SellerBidRequestStatus[] = await this.sellerService.getListOfBidStatus(request.user.id);
         return {
             data: result,
+        };
+    }
+
+    @hasRoles(UserRole.SELLER, UserRole.ADMIN)
+    @UseGuards(JwtAuthGuard, RolesGuard, UserIsUserGuard)
+    @Post('postQuestions')
+    public async postQuestions(
+        @Req() request,
+        @Body(ValidationPipe) postQuestionDto: PostQuestionDto,
+    ): Promise<ResponseType<any>> {
+        postQuestionDto.sellerId = request.user.id;
+        await this.sellerService.saveQuestions(postQuestionDto);
+        return {
+            data: 'Seller question saved successfully',
+        };
+    }
+
+    @hasRoles(UserRole.SELLER, UserRole.ADMIN)
+    @UseGuards(JwtAuthGuard, RolesGuard, UserIsUserGuard)
+    @Post('questionAnswer')
+    public async getAllQuestionAnswer(
+        @Req() request,
+        @Body(ValidationPipe) getQuestionDto: GetQuestionDto,
+    ): Promise<ResponseType<any>> {
+        const response = await this.sellerService.getQuestionAnswerForSeller(getQuestionDto);
+        return {
+            data: response,
+        };
+    }
+
+    @hasRoles(UserRole.SELLER, UserRole.ADMIN)
+    @UseGuards(JwtAuthGuard, RolesGuard, UserIsUserGuard)
+    @Get('buyerInformation')
+    public async getBuyerInformation(
+        @Req() request,
+        @Query('partRequestId') partRequestId: number,
+        @Query('partBidRequestId') partBidRequestId: number,
+    ): Promise<ResponseType<any>> {
+        const response = await this.sellerService.getBuyerInformation(partRequestId, partBidRequestId);
+        return {
+            data: response,
         };
     }
 

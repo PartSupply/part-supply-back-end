@@ -26,6 +26,9 @@ export class PartBidRequestEntity extends BaseEntity {
     @Column({ name: 'BID_STATUS' })
     public bidStatus: BidStatusEnum;
 
+    @Column({ name: 'IS_OFFER_ACCEPTED' })
+    public isOfferAccepted: boolean;
+
     @ManyToOne(() => PartRequsetEntity, { eager: false })
     @JoinColumn({ name: 'PART_REQUEST_ID', referencedColumnName: 'id' })
     public partRequest: PartRequsetEntity;
