@@ -44,6 +44,11 @@ export class UserService {
         userEntity.phoneNumber = user.phoneNumber;
         userEntity.faxNumber = user.faxNumber;
         userEntity.deliveryRadius = user.deliveryRadius;
+        // By default make this as false and this needs to be approved by admin
+        userEntity.isAccountApproved = false;
+        userEntity.isAccountActive = false;
+        userEntity.accountCreationDate = new Date().toISOString();
+        userEntity.accountUpdatedDate = new Date().toISOString();
         userEntity.role = userRole;
 
         return await this.userRepository.save(userEntity);

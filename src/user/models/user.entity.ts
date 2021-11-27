@@ -55,6 +55,18 @@ export class UserEntity extends BaseEntity {
     @Column({ name: 'DELIVERY_RADIUS', nullable: true })
     public deliveryRadius: string;
 
+    @Column({ name: 'IS_ACCOUNT_APPROVED' })
+    public isAccountApproved: boolean;
+
+    @Column({ name: 'IS_ACCOUNT_ACTIVE' })
+    public isAccountActive: boolean;
+
+    @Column({ name: 'CREATED_DATE' })
+    public accountCreationDate: string;
+
+    @Column({ name: 'UPDATED_DATE' })
+    public accountUpdatedDate: string;
+
     @ManyToOne(() => RoleEntity, (role) => role.id, { eager: true })
     @JoinColumn({ name: 'USER_ROLE_ID' })
     public role: RoleEntity;
