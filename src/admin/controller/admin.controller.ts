@@ -34,4 +34,24 @@ export class AdminController {
             data: 'account update successfully',
         };
     }
+
+    @hasRoles(UserRole.ADMIN)
+    @UseGuards(JwtAuthGuard, RolesGuard, UserIsUserGuard)
+    @Get('allBuyerPartRequest')
+    public async getAllBuyerRequest(@Req() request): Promise<ResponseType<any>> {
+        const response = await this.adminService.getAllBuyerRequest();
+        return {
+            data: response,
+        };
+    }
+
+    @hasRoles(UserRole.ADMIN)
+    @UseGuards(JwtAuthGuard, RolesGuard, UserIsUserGuard)
+    @Get('allSellerOfferRequest')
+    public async getAllSellerOfferRequest(@Req() request): Promise<ResponseType<any>> {
+        const response = await this.adminService.getAllSellerPartOfferRequest();
+        return {
+            data: response,
+        };
+    }
 }

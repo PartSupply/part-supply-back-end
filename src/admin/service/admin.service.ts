@@ -8,6 +8,7 @@ import { UserSessionEntity } from './../../user/models/user-session.entity';
 import { AuthService } from './../../auth/service/auth.service';
 import { AccountUpdateDto } from '../models/admin.dto';
 import { PartRequsetEntity } from './../../buyer/models/part.entity';
+import { PartBidRequestEntity } from './../../seller/models/partBidRequest.entity';
 
 @Injectable()
 export class AdminService {
@@ -16,7 +17,8 @@ export class AdminService {
         @InjectRepository(RoleEntity) private readonly roleRepository: Repository<RoleEntity>,
         @InjectRepository(AddressEntity) private readonly addressRepository: Repository<AddressEntity>,
         @InjectRepository(UserSessionEntity) private readonly userSessionRepository: Repository<UserSessionEntity>,
-        @InjectRepository(UserSessionEntity) private readonly partRequestRepository: Repository<PartRequsetEntity>,
+        @InjectRepository(PartRequsetEntity) private readonly partRequestRepository: Repository<PartRequsetEntity>,
+        @InjectRepository(PartBidRequestEntity) private readonly partBidRequestRepository: Repository<PartBidRequestEntity>,
         private authService: AuthService,
     ) {}
 
@@ -31,6 +33,13 @@ export class AdminService {
 
     public async getAllBuyerRequest() {
         const response = await this.partRequestRepository.find();
+        return response;
+    }
+
+    public async getAllSellerPartOfferRequest() {
+        const response = await this.partBidRequestRepository.find({
+            relations: ['partRequest'],
+        });
         return response;
     }
 

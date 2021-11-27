@@ -9,10 +9,18 @@ import { UserEntity } from './../user/models/user.entity';
 import { AdminController } from './controller/admin.controller';
 import { AdminService } from './service/admin.service';
 import { PartRequsetEntity } from './../buyer/models/part.entity';
+import { PartBidRequestEntity } from './../seller/models/partBidRequest.entity';
 
 @Module({
     imports: [
-        TypeOrmModule.forFeature([UserEntity, RoleEntity, AddressEntity, UserSessionEntity, PartRequsetEntity]),
+        TypeOrmModule.forFeature([
+            UserEntity,
+            RoleEntity,
+            AddressEntity,
+            UserSessionEntity,
+            PartRequsetEntity,
+            PartBidRequestEntity,
+        ]),
         AuthModule,
     ],
     providers: [AdminService, UserService],
