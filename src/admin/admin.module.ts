@@ -8,9 +8,13 @@ import { UserSessionEntity } from './../user/models/user-session.entity';
 import { UserEntity } from './../user/models/user.entity';
 import { AdminController } from './controller/admin.controller';
 import { AdminService } from './service/admin.service';
+import { PartRequsetEntity } from './../buyer/models/part.entity';
 
 @Module({
-    imports: [TypeOrmModule.forFeature([UserEntity, RoleEntity, AddressEntity, UserSessionEntity]), AuthModule],
+    imports: [
+        TypeOrmModule.forFeature([UserEntity, RoleEntity, AddressEntity, UserSessionEntity, PartRequsetEntity]),
+        AuthModule,
+    ],
     providers: [AdminService, UserService],
     controllers: [AdminController],
     exports: [AdminService],

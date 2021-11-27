@@ -55,7 +55,12 @@ export class UserController {
     @Get('userProfile')
     public async getUserProfile(@Req() request): Promise<ResponseType<UserEntity>> {
         const loggedInUserId = request.user.id;
-        const savedUser: UserEntity = await this.userService.findOne(loggedInUserId);
+        let savedUser: UserEntity = null;
+        try {
+            savedUser = await this.userService.findOne(loggedInUserId);
+        } catch (error) {
+            return error;
+        }
 
         if (!savedUser) {
             throw new InternalServerErrorException('No such user exist');

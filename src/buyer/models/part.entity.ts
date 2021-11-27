@@ -38,6 +38,12 @@ export class PartRequsetEntity extends BaseEntity {
     @Column({ type: 'enum', name: 'OFFER_STATUS', enum: OfferStatus })
     public offerStatus: OfferStatus;
 
+    @Column({ name: 'PART_REQUEST_CREATED_DATE' })
+    public partRequestCreationDate: string;
+
+    @Column({ name: 'PART_REQUEST_UPDATED_DATE' })
+    public partRequestUpdatedDate: string;
+
     @ManyToOne(() => UserEntity, { eager: false })
     @JoinColumn({ name: 'USER_ID', referencedColumnName: 'id' })
     public user: UserEntity;

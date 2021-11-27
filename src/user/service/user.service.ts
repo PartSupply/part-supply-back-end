@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { AuthService } from './../../auth/service/auth.service';
 import { Repository, UpdateResult } from 'typeorm';
@@ -8,6 +8,7 @@ import { UserEntity } from '../models/user.entity';
 import { v4 as uuidv4 } from 'uuid';
 import { AddressEntity } from '../models/address.entity';
 import { UserSessionEntity } from '../models/user-session.entity';
+import { threadId } from 'worker_threads';
 
 @Injectable()
 export class UserService {
@@ -57,6 +58,11 @@ export class UserService {
     public async login(user: UserDto): Promise<string> {
         const userObj: UserEntity = await this.validateUser(user.email, user.password);
         if (user) {
+            // First need to make sure user account is approved by admin and second is not blocked
+            if (!userObj.isAccountActive || !userObj.isAccountApproved) {
+                // If any one of this set as false that mean admin has blocked this account
+                throw new NotFoundException('Account is not activate by Admin. please reach out to admin');
+            }
             const jwtString = await this.authService.generateJWT(userObj);
             // Need to store this issued token in to user session table
             // this stored token will be validated upon all authenticated request
