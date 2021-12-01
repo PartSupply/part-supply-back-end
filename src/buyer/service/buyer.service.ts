@@ -28,8 +28,8 @@ export class BuyerService {
         partRequestEntity.reManufacturedPartType = partRequest.partType.reManufactured;
         partRequestEntity.numberOfOffers = partRequest.numberOfOffers;
         partRequestEntity.offerStatus = partRequest.offerStatus;
-        partRequestEntity.partRequestCreationDate = new Date().toISOString();
-        partRequestEntity.partRequestUpdatedDate = new Date().toISOString();
+        partRequestEntity.partRequestCreationDate = new Date().toISOString().split('T')[0];
+        partRequestEntity.partRequestUpdatedDate = new Date().toISOString().split('T')[0];
         partRequestEntity.user = partRequest.user;
 
         return await this.partRequestRepository.save(partRequestEntity);
