@@ -1,4 +1,4 @@
-import { IsBoolean, IsNotEmpty, IsNumber } from 'class-validator';
+import { IsBoolean, IsNotEmpty, IsNumber, IsString } from 'class-validator';
 
 export class AccountUpdateDto {
     @IsNotEmpty()
@@ -12,4 +12,13 @@ export class AccountUpdateDto {
     @IsNotEmpty()
     @IsBoolean()
     public isAccountActive: boolean;
+}
+
+export class GetReportDto {
+    @IsNotEmpty()
+    @IsString()
+    public startDate: string;
+    @IsNotEmpty()
+    @IsString()
+    public endDate: string;
 }

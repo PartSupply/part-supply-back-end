@@ -100,7 +100,7 @@ export class SellerService {
                 `SELECT * FROM PARTS_REQUEST where ID=${bidRequest.partRequest.id}`,
             );
             // Get PartRequest info using partRequestId
-            const buyerId = storedPartRequest[0].USER_ID ?? 0;
+            const buyerId = storedPartRequest[0].BUYER_USER_ID ?? 0;
             const winningBidRequest: PartBidRequestEntity = result[0];
             result.forEach((partBidRequest: PartBidRequestEntity) => {
                 const sellerBidRequestStatus: SellerBidRequestStatus = {
@@ -148,7 +148,7 @@ export class SellerService {
         const questionAnswerEntity = new QuestionAnswerEntity();
         questionAnswerEntity.question = postQuestionDto.question;
         questionAnswerEntity.answer = '';
-        questionAnswerEntity.buyerId = response[0].USER_ID;
+        questionAnswerEntity.buyerId = response[0].BUYER_USER_ID;
         questionAnswerEntity.sellerId = postQuestionDto.sellerId;
         questionAnswerEntity.partRequestId = postQuestionDto.partRequestId;
         questionAnswerEntity.partBidId = null;
@@ -185,7 +185,7 @@ export class SellerService {
             `SELECT * FROM PART_BID_REQUEST where ID=${partBidRequestId}`,
         );
 
-        const userResponse = await this.userRepository.findOne({ id: partBidRequestResponse[0].USER_ID });
+        const userResponse = await this.userRepository.findOne({ id: partBidRequestResponse[0].SELLER_USER_ID });
 
         return {
             partRequest: partRequestResponse[0],
@@ -203,7 +203,7 @@ export class SellerService {
             `SELECT * FROM PART_BID_REQUEST where ID=${partBidRequestId}`,
         );
 
-        const userResponse = await this.userRepository.findOne({ id: partRequestResponse[0].USER_ID });
+        const userResponse = await this.userRepository.findOne({ id: partRequestResponse[0].BUYER_USER_ID });
 
         return {
             partRequest: partRequestResponse[0],

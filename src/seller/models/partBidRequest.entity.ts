@@ -1,6 +1,6 @@
 import { PartRequsetEntity } from './../../buyer/models/part.entity';
 import { UserEntity } from './../../user/models/user.entity';
-import { BaseEntity, Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import { BaseEntity, Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
 import { BidStatusEnum, TypeOfPartEnum } from './partBidRequest.dto';
 
 @Entity({ name: 'PART_BID_REQUEST' })
@@ -29,11 +29,17 @@ export class PartBidRequestEntity extends BaseEntity {
     @Column({ name: 'IS_OFFER_ACCEPTED' })
     public isOfferAccepted: boolean;
 
+    @CreateDateColumn({ name: 'PART_OFFER_CREATED_DATE' })
+    public partOfferCreatedDate: Date;
+
+    @UpdateDateColumn({ name: 'PART_OFFER_UPDATED_DATE' })
+    public partOfferUpdatedDate: Date;
+
     @ManyToOne(() => PartRequsetEntity, { eager: false })
     @JoinColumn({ name: 'PART_REQUEST_ID', referencedColumnName: 'id' })
     public partRequest: PartRequsetEntity;
 
     @ManyToOne(() => UserEntity, { eager: true })
-    @JoinColumn({ name: 'USER_ID', referencedColumnName: 'id' })
+    @JoinColumn({ name: 'SELLER_USER_ID', referencedColumnName: 'id' })
     public user: UserEntity;
 }

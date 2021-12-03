@@ -18,7 +18,7 @@ import { PartBidRequestEntity } from './../../seller/models/partBidRequest.entit
 @Entity({ name: 'USER' })
 @Unique('UNIQUE_USER_GUID_EMAIL', ['userGuid', 'email'])
 export class UserEntity extends BaseEntity {
-    @PrimaryGeneratedColumn({ name: 'ID' })
+    @PrimaryGeneratedColumn({ name: 'USER_ID' })
     public id: number;
 
     @Column({ name: 'USER_GUID' })

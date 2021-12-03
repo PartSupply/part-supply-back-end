@@ -1,5 +1,15 @@
 import { UserEntity } from './../../user/models/user.entity';
-import { BaseEntity, Column, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import {
+    BaseEntity,
+    Column,
+    CreateDateColumn,
+    Entity,
+    JoinColumn,
+    ManyToOne,
+    OneToMany,
+    PrimaryGeneratedColumn,
+    UpdateDateColumn,
+} from 'typeorm';
 import { OfferStatus } from './part.dto';
 import { PartBidRequestEntity } from './../../seller/models/partBidRequest.entity';
 
@@ -38,14 +48,14 @@ export class PartRequsetEntity extends BaseEntity {
     @Column({ type: 'enum', name: 'OFFER_STATUS', enum: OfferStatus })
     public offerStatus: OfferStatus;
 
-    @Column({ name: 'PART_REQUEST_CREATED_DATE' })
-    public partRequestCreationDate: string;
+    @CreateDateColumn({ name: 'PART_REQUEST_CREATED_DATE' })
+    public partRequestCreationDate: Date;
 
-    @Column({ name: 'PART_REQUEST_UPDATED_DATE' })
-    public partRequestUpdatedDate: string;
+    @UpdateDateColumn({ name: 'PART_REQUEST_UPDATED_DATE' })
+    public partRequestUpdatedDate: Date;
 
     @ManyToOne(() => UserEntity, { eager: false })
-    @JoinColumn({ name: 'USER_ID', referencedColumnName: 'id' })
+    @JoinColumn({ name: 'BUYER_USER_ID', referencedColumnName: 'id' })
     public user: UserEntity;
 
     @OneToMany(() => PartBidRequestEntity, (partBidRequest) => partBidRequest.id, { eager: false })

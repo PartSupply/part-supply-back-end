@@ -1,12 +1,12 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { UserEntity } from './../../user/models/user.entity';
-import { Not, Repository } from 'typeorm';
+import { getConnection, Not, Repository } from 'typeorm';
 import { RoleEntity } from './../../user/models/role.entity';
 import { AddressEntity } from './../../user/models/address.entity';
 import { UserSessionEntity } from './../../user/models/user-session.entity';
 import { AuthService } from './../../auth/service/auth.service';
-import { AccountUpdateDto } from '../models/admin.dto';
+import { AccountUpdateDto, GetReportDto } from '../models/admin.dto';
 import { PartRequsetEntity } from './../../buyer/models/part.entity';
 import { PartBidRequestEntity } from './../../seller/models/partBidRequest.entity';
 
@@ -40,6 +40,14 @@ export class AdminService {
         const response = await this.partBidRequestRepository.find({
             relations: ['partRequest'],
         });
+        return response;
+    }
+
+    public async getReport(getReportDto: GetReportDto) {
+        const query = `SELECT * from (SELECT * from (SELECT PARTS_REQUEST.ID as PART_ID, PART_REQUEST_CREATED_DATE,YEAR, MAKE, MODEL,VIN_NUMBER,PART_NAME,BUYER_USER_ID, BID_AMOUNT, PART_BRAND, TYPE_OF_PARTS, SELLER_USER_ID, BID_WARRANTY, EST_DELIVERY_TIME  FROM PARTS_REQUEST INNER JOIN PART_BID_REQUEST on PARTS_REQUEST.ID = PART_BID_REQUEST.PART_REQUEST_ID and PART_BID_REQUEST.IS_OFFER_ACCEPTED=1 and (PART_REQUEST_CREATED_DATE between '${getReportDto.startDate}' and '${getReportDto.endDate}')) AS SQ inner join (select USER_ID,FIRST_NAME as SELLER_FIRST_NAME,LAST_NAME as SELLER_LAST_NAME from USER) AS U  on U.USER_ID=SQ.SELLER_USER_ID)  as SP inner join(SELECT PART_ID, BUYER_FIRST_NAME,BUYER_LAST_NAME from (SELECT PARTS_REQUEST.ID as PART_ID, PART_REQUEST_CREATED_DATE,YEAR, MAKE, MODEL,VIN_NUMBER,PART_NAME,BUYER_USER_ID, BID_AMOUNT, PART_BRAND, TYPE_OF_PARTS, SELLER_USER_ID, BID_WARRANTY, EST_DELIVERY_TIME  FROM PARTS_REQUEST INNER JOIN PART_BID_REQUEST on PARTS_REQUEST.ID = PART_BID_REQUEST.PART_REQUEST_ID and PART_BID_REQUEST.IS_OFFER_ACCEPTED=1 and (PART_REQUEST_CREATED_DATE between '${getReportDto.startDate}' and '${getReportDto.endDate}')) AS SQ inner join (select USER_ID,FIRST_NAME as BUYER_FIRST_NAME,LAST_NAME as BUYER_LAST_NAME from USER) AS U  on U.USER_ID=SQ.BUYER_USER_ID) as PS on PS.PART_ID=SP.PART_ID`;
+
+        const response = await getConnection().query(query);
+
         return response;
     }
 
