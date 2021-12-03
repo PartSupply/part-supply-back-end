@@ -21,4 +21,10 @@ export class GetReportDto {
     @IsNotEmpty()
     @IsString()
     public endDate: string;
+    @IsNotEmpty()
+    @IsString()
+    public sellerEmail: string;
+    @IsNotEmpty()
+    @IsNumber()
+    public commissionPercentage;
 }
