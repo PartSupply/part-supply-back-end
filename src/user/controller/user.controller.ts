@@ -4,6 +4,7 @@ import {
     Get,
     InternalServerErrorException,
     Post,
+    Put,
     Req,
     UseGuards,
     ValidationPipe,
@@ -36,6 +37,20 @@ export class UserController {
         }
         return {
             data: createdUser,
+        };
+    }
+
+    @Put('userProfile')
+    public async updateUserProfile(@Body(ValidationPipe) user: UserDto): Promise<ResponseType<any>> {
+        try {
+            await this.userService.updateUserProfile(user);
+        } catch (error) {
+            if (error.code === 'ER_DUP_ENTRY') {
+                throw new InternalServerErrorException('Provided user email account already exist');
+            }
+        }
+        return {
+            data: 'user updated successfully',
         };
     }
 

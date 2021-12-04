@@ -9,6 +9,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { AddressEntity } from '../models/address.entity';
 import { UserSessionEntity } from '../models/user-session.entity';
 import { threadId } from 'worker_threads';
+import { use } from 'passport';
 
 @Injectable()
 export class UserService {
@@ -53,6 +54,28 @@ export class UserService {
         userEntity.role = userRole;
 
         return await this.userRepository.save(userEntity);
+    }
+
+    public async updateUserProfile(user: UserDto) {
+        const savedUser: UserEntity = await this.userRepository.findOne({ email: user.email });
+        savedUser.firstName = user.firstName;
+        savedUser.lastName = user.lastName;
+        savedUser.password = await this.authService.hashPassword(user.password);
+        savedUser.companyName = user.companyName;
+        savedUser.address.addressLineOne = user.address.addressLineOne;
+        savedUser.address.city = user.address.city;
+        savedUser.address.state = user.address.state;
+        savedUser.address.zipCode = user.address.zipCode;
+        savedUser.address.country = user.address.country;
+        savedUser.isMailDeliveryAcceptable = user.isMailDeliveryAcceptable;
+        savedUser.phoneNumber = user.phoneNumber;
+        savedUser.deliveryRadius = user.deliveryRadius;
+        savedUser.faxNumber = user.faxNumber;
+
+        await this.userRepository.save({
+            ...savedUser,
+        });
+        return;
     }
 
     public async login(user: UserDto): Promise<string> {

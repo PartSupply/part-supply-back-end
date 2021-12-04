@@ -95,7 +95,7 @@ export class AdminController {
 
     @hasRoles(UserRole.ADMIN)
     @UseGuards(JwtAuthGuard, RolesGuard, UserIsUserGuard)
-    @Delete('deletePartRequest')
+    @Post('deletePartRequest')
     public async deletePartRequest(
         @Body(ValidationPipe) deletePartRequestDto: DeletePartRequestDto,
     ): Promise<ResponseType<any>> {

@@ -156,7 +156,7 @@ export class SellerService {
                 sellerBidRequestStatusList.push(sellerBidRequestStatus);
             });
         }
-        return sellerBidRequestStatusList;
+        return sellerBidRequestStatusList.reverse();
     }
 
     public async getPartBidRequest(partRequestId: number, userId: number): Promise<PartBidRequestEntity[]> {
