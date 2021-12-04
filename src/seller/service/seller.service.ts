@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { HttpService, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { GetQuestionBuyerDto, GetQuestionDto, OfferStatus, PostQuestionDto } from './../../buyer/models/part.dto';
 import { getConnection, Repository } from 'typeorm';
@@ -12,7 +12,7 @@ import {
 } from '../models/partBidRequest.dto';
 import { QuestionAnswerEntity } from '../models/questionAnswer.entity';
 import { UserEntity } from '../../user/models/user.entity';
-
+import * as https from 'https';
 @Injectable()
 export class SellerService {
     constructor(
@@ -23,25 +23,58 @@ export class SellerService {
         private readonly questionAnswerRepository: Repository<QuestionAnswerEntity>,
         @InjectRepository(UserEntity)
         private readonly userRepository: Repository<UserEntity>,
+        private httpService: HttpService,
     ) {}
 
-    public async returnPartRequestList(userId: string): Promise<PartRequsetEntity[]> {
+    public async returnPartRequestList(user: any): Promise<PartRequsetEntity[]> {
         const partRequestList: PartRequsetEntity[] = await this.partRequestRepository.find({
             where: { offerStatus: OfferStatus.OPEN },
+            relations: ['user'],
         });
         const finalPartRequestList: PartRequsetEntity[] = [];
 
         for (const partRequest of partRequestList) {
             const isSellerHasAlreadyPutRequest = await this.isBidRequestAlreadyPresentForThePart(
-                userId,
+                user.id,
                 partRequest.id,
             );
             if (!isSellerHasAlreadyPutRequest) {
-                finalPartRequestList.push(partRequest);
+                // check
+                if (user.deliveryRadius === 'Anywhere In The USA') {
+                    finalPartRequestList.push(partRequest);
+                } else {
+                    const zipcodes = await this.getzipCodes(user.address.zipCode, user.deliveryRadius.split(' ')[0]);
+                    if (zipcodes.has(partRequest.user.address.zipCode)) {
+                        finalPartRequestList.push(partRequest);
+                    }
+                }
             }
         }
-
         return finalPartRequestList.reverse();
+    }
+
+    public async getzipCodes(zipCode: string, mile: string): Promise<any> {
+        const config = {
+            headers: {
+                applicationKey: `${process.env.ZIP_CODER_API_KEY}`,
+            },
+            httpsAgent: new https.Agent({
+                rejectUnauthorized: false,
+            }),
+        };
+
+        const response = await this.httpService
+            .get(
+                `https://www.zipcodeapi.com/rest/${process.env.ZIP_CODER_API_KEY}/radius.json/${zipCode}/${mile}/mile`,
+                config,
+            )
+            .toPromise();
+        // Once you get the response find out all the zip code
+        const zipcodeSet = new Set();
+        response.data.zip_codes.forEach((element) => {
+            zipcodeSet.add(element.zip_code);
+        });
+        return zipcodeSet;
     }
 
     public async getPartRequestById(userId: number): Promise<PartRequsetEntity> {

@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { HttpModule, Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { UserModule } from './../user/user.module';
 import { AuthModule } from './../auth/auth.module';
@@ -14,6 +14,7 @@ import { UserEntity } from './../user/models/user.entity';
         TypeOrmModule.forFeature([PartRequsetEntity, PartBidRequestEntity, QuestionAnswerEntity, UserEntity]),
         AuthModule,
         UserModule,
+        HttpModule,
     ],
     providers: [SellerService],
     controllers: [SellerController],

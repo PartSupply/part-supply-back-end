@@ -22,7 +22,7 @@ export class SellerController {
     @UseGuards(JwtAuthGuard, RolesGuard, UserIsUserGuard)
     @Get('partsRequest')
     public async returnPartsRequest(@Req() request): Promise<ResponseType<any>> {
-        const partRequest: PartRequsetEntity[] = await this.sellerService.returnPartRequestList(request.user.id);
+        const partRequest: PartRequsetEntity[] = await this.sellerService.returnPartRequestList(request.user);
         return {
             data: this.transformPartsRequestToDto(partRequest),
         };
