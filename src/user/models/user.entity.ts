@@ -44,7 +44,7 @@ export class UserEntity extends BaseEntity {
     public address: AddressEntity;
 
     @Column({ name: 'IS_MAIL_DELIVERY_ACCEPTABLE' })
-    public isMailDeliveryAcceptable: boolean;
+    public isMailDeliveryAcceptable: string;
 
     @Column({ name: 'PHONE_NUMBER' })
     public phoneNumber: string;

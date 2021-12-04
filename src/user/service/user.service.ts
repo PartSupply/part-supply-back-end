@@ -72,6 +72,16 @@ export class UserService {
         savedUser.deliveryRadius = user.deliveryRadius;
         savedUser.faxNumber = user.faxNumber;
 
+        const addressEntity: AddressEntity = new AddressEntity();
+        addressEntity.id = savedUser.address.id;
+        addressEntity.addressLineOne = user.address.addressLineOne;
+        addressEntity.city = user.address.city;
+        addressEntity.state = user.address.state;
+        addressEntity.zipCode = user.address.zipCode;
+        addressEntity.country = user.address.country;
+        await this.addressRepository.save({
+            ...addressEntity,
+        });
         await this.userRepository.save({
             ...savedUser,
         });

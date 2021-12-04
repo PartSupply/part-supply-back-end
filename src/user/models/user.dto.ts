@@ -75,8 +75,8 @@ export class UserDto {
     @Type(() => AddressDto)
     public address: AddressDto;
     @IsNotEmpty()
-    @IsBoolean()
-    public isMailDeliveryAcceptable: boolean;
+    @IsString()
+    public isMailDeliveryAcceptable: string;
     @IsNotEmpty()
     @IsString()
     @MaxLength(10)
