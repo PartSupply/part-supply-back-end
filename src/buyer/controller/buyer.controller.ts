@@ -34,10 +34,22 @@ export class BuyerController {
     @UseGuards(JwtAuthGuard, RolesGuard, UserIsUserGuard)
     @Get('partsRequest')
     public async returnPartsRequest(@Req() request): Promise<ResponseType<any>> {
+        const chatData = new Map<number, any>();
         const loggedInUserId = request.user.id;
         const partRequest: PartRequsetEntity[] = await this.buyerService.returnPartRequstList(loggedInUserId);
+        // Need to check chat is there or not
+        for (const part of partRequest) {
+            const chatResponse = await this.buyerService.findChatForBuyerPartRequest(part, request.user);
+            chatData.set(part.id, chatResponse);
+        }
         return {
-            data: this.transformPartsRequestToDto(partRequest),
+            data: {
+                partRequest: this.transformPartsRequestToDto(partRequest.reverse()),
+                chatData: Array.from(chatData.entries()).reduce((o, [key, value]) => {
+                    o[key] = value;
+                    return o;
+                }, {}),
+            },
         };
     }
 

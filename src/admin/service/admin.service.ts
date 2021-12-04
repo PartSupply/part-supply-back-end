@@ -28,19 +28,19 @@ export class AdminService {
                 role: { id: Not(1) },
             },
         });
-        return response;
+        return response.reverse();
     }
 
     public async getAllBuyerRequest() {
         const response = await this.partRequestRepository.find();
-        return response;
+        return response.reverse();
     }
 
     public async getAllSellerPartOfferRequest() {
         const response = await this.partBidRequestRepository.find({
             relations: ['partRequest'],
         });
-        return response;
+        return response.reverse();
     }
 
     public async getReport(getReportDto: GetReportDto, user: UserEntity) {
@@ -70,5 +70,14 @@ export class AdminService {
         }
 
         await this.userRepository.save(userEntity);
+    }
+
+    public async deletePartRequest(partRequestIds: number[]): Promise<void> {
+        for (const id of partRequestIds) {
+            await getConnection().query(`DELETE FROM PART_BID_REQUEST where PART_REQUEST_ID=${id}`);
+            await getConnection().query(`DELETE FROM PARTS_REQUEST where ID=${id}`);
+        }
+
+        return;
     }
 }

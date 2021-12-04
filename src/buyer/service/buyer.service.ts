@@ -5,6 +5,7 @@ import { getConnection, Repository } from 'typeorm';
 import { PartRequestDto, PostAnswerDto } from '../models/part.dto';
 import { PartRequsetEntity } from '../models/part.entity';
 import { QuestionAnswerEntity } from '../../seller/models/questionAnswer.entity';
+import { response } from 'express';
 
 @Injectable()
 export class BuyerService {
@@ -37,6 +38,14 @@ export class BuyerService {
         return await this.partRequestRepository.find({ where: { user: { id: userId } } });
     }
 
+    public async findChatForBuyerPartRequest(partRequsetEntity: PartRequsetEntity, user: any) {
+        const chatResponse = await getConnection().query(
+            `SELECT * FROM QUESTION_ANSWER where PART_REQUEST_ID=${partRequsetEntity.id} AND BUYER_ID=${user.id}`,
+        );
+
+        return chatResponse;
+    }
+
     public async getPartOffersList(partRequestId: string): Promise<any> {
         const sellerBidRequestList: PartBidRequestEntity[] = await this.partBidRequestRepository.find({
             where: { partRequest: { id: partRequestId } },
@@ -48,7 +57,7 @@ export class BuyerService {
             delete seller.user;
             finalResult.push(seller);
         });
-        return { partRequest: partRequsetEntity, partOffers: finalResult };
+        return { partRequest: partRequsetEntity, partOffers: finalResult.reverse() };
     }
 
     public async getPartRequestById(partRequestId: number): Promise<PartRequsetEntity> {

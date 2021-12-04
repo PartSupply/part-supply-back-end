@@ -28,3 +28,7 @@ export class GetReportDto {
     @IsNumber()
     public commissionPercentage;
 }
+
+export class DeletePartRequestDto {
+    public partRequestIds: number[];
+}

@@ -115,9 +115,9 @@ export class GetQuestionDto {
 export class GetQuestionBuyerDto {
     @IsNotEmpty()
     @IsNumber()
-    public buyerId: number;
+    public sellerId: number;
 
     @IsNotEmpty()
     @IsNumber()
-    public partBidId: number;
+    public partRequestId: number;
 }

@@ -41,7 +41,7 @@ export class SellerService {
             }
         }
 
-        return finalPartRequestList;
+        return finalPartRequestList.reverse();
     }
 
     public async getPartRequestById(userId: number): Promise<PartRequsetEntity> {
@@ -170,7 +170,7 @@ export class SellerService {
 
     public async getQuestionAnswerForBuyer(getQuestionDto: GetQuestionBuyerDto): Promise<QuestionAnswerEntity[]> {
         const response = await getConnection().query(
-            `SELECT * FROM QUESTION_ANSWER where BUYER_ID=${getQuestionDto.buyerId} AND PART_REQUEST_ID=${getQuestionDto.partBidId}`,
+            `SELECT * FROM QUESTION_ANSWER where SELLER_ID=${getQuestionDto.sellerId} AND PART_REQUEST_ID=${getQuestionDto.partRequestId}`,
         );
 
         return response;
