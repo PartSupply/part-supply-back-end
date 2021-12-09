@@ -1,6 +1,15 @@
 import { PartRequsetEntity } from './../../buyer/models/part.entity';
 import { UserEntity } from './../../user/models/user.entity';
-import { BaseEntity, Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
+import {
+    BaseEntity,
+    Column,
+    CreateDateColumn,
+    Entity,
+    JoinColumn,
+    ManyToOne,
+    PrimaryGeneratedColumn,
+    UpdateDateColumn,
+} from 'typeorm';
 import { BidStatusEnum, TypeOfPartEnum } from './partBidRequest.dto';
 
 @Entity({ name: 'PART_BID_REQUEST' })
@@ -8,7 +17,7 @@ export class PartBidRequestEntity extends BaseEntity {
     @PrimaryGeneratedColumn({ name: 'ID' })
     public id: number;
 
-    @Column({ name: 'BID_AMOUNT' })
+    @Column({ name: 'BID_AMOUNT', type: 'numeric', precision: 10, scale: 2 })
     public bidAmount: number;
 
     @Column({ name: 'BID_WARRANTY' })

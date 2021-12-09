@@ -115,4 +115,9 @@ export class UserController {
     public seller(): string {
         return 'seller';
     }
+
+    @Get('health')
+    public health(): string {
+        return 'ok';
+    }
 }
