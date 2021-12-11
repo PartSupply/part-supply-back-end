@@ -32,7 +32,10 @@ export class SellerService {
             relations: ['user'],
         });
         const finalPartRequestList: PartRequsetEntity[] = [];
-
+        let zipcodes = new Set();
+        if (user.deliveryRadius !== 'Anywhere In The USA') {
+            zipcodes = await this.getzipCodes(user.address.zipCode, user.deliveryRadius.split(' ')[0]);
+        }
         for (const partRequest of partRequestList) {
             const isSellerHasAlreadyPutRequest = await this.isBidRequestAlreadyPresentForThePart(
                 user.id,
@@ -43,7 +46,6 @@ export class SellerService {
                 if (user.deliveryRadius === 'Anywhere In The USA') {
                     finalPartRequestList.push(partRequest);
                 } else {
-                    const zipcodes = await this.getzipCodes(user.address.zipCode, user.deliveryRadius.split(' ')[0]);
                     if (zipcodes.has(partRequest.user.address.zipCode)) {
                         finalPartRequestList.push(partRequest);
                     }
