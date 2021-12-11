@@ -77,6 +77,9 @@ export class AdminController {
             if (user === undefined) {
                 throw new NotFoundException('Provided user email address not found');
             }
+            if (user.role.roleName === 'BUYER' || user.role.roleName === 'ADMIN') {
+                throw new NotFoundException('Provided user email address not found');
+            }
         } catch (error) {
             throw new NotFoundException('Provided user email address not found');
         }
