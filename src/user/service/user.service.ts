@@ -165,7 +165,7 @@ export class UserService {
     public sendPassCodeTemplate(otpEntity: OtpEntity) {
         return {
             subject: 'PartSupply: One time PassCode for changing password of your account',
-            body: `Your One Time PassCode for Resetting Password for PartSupply is :${otpEntity.oneTimeCode}`,
+            body: `Your One Time PassCode for Resetting Password for PartSupply is : ${otpEntity.oneTimeCode}`,
         };
     }
 
@@ -211,7 +211,7 @@ export class UserService {
 
         const body = {
             from: {
-                email: 'jinalsutariya2016@gmail.com',
+                email: 'partsupplytaylor@gmail.com',
             },
             subject: template.subject,
             personalizations: [
