@@ -97,6 +97,16 @@ export type UserSessionDto = {
     dateTime: string;
 };
 
+export type ChangePasswordDto = {
+    email: string;
+};
+
+export type ResetUserPasswordDto = {
+    email: string;
+    password: string;
+    oneTimeCode: number;
+};
+
 export const userRoleMapper = new Map<string, number>([
     [UserRole.ADMIN, 1],
     [UserRole.BUYER, 2],

@@ -3,6 +3,7 @@ import {
     Controller,
     Get,
     InternalServerErrorException,
+    NotFoundException,
     Post,
     Put,
     Req,
@@ -12,7 +13,7 @@ import {
 import { hasRoles } from './../../auth/decorators/roles.decorator';
 import { JwtAuthGuard } from './../../auth/guards/jwt-guard';
 import { RolesGuard } from './../../auth/guards/roles.guard';
-import { UserDto, UserRole } from '../models/user.dto';
+import { ChangePasswordDto, ResetUserPasswordDto, UserDto, UserRole } from '../models/user.dto';
 import { UserService } from '../service/user.service';
 import { ResponseType } from '../../utilities/responseType';
 import { UserEntity } from '../models/user.entity';
@@ -99,6 +100,37 @@ export class UserController {
 
         return {
             data: 'User logged out succcessfully',
+        };
+    }
+
+    @Post('sendOneTimeCode')
+    public async sendOneTimeCode(@Req() request, @Body() user: ChangePasswordDto): Promise<ResponseType<any>> {
+        let savedUser: UserEntity;
+        try {
+            savedUser = await this.userService.findUserByEmail(user.email);
+        } catch (error) {
+            throw new NotFoundException('Provided email address is not valid');
+        }
+        await this.userService.generateOneTimeCodeForPasswordReset(savedUser);
+        return {
+            data: 'one time passcode has been set',
+        };
+    }
+
+    @Post('resetPassword')
+    public async resetPassword(
+        @Req() request,
+        @Body() resetPasswordDto: ResetUserPasswordDto,
+    ): Promise<ResponseType<any>> {
+        let savedUser: UserEntity;
+        try {
+            savedUser = await this.userService.findUserByEmail(resetPasswordDto.email);
+        } catch (error) {
+            throw new NotFoundException('Provided email address is not valid');
+        }
+        await this.userService.resetPassword(savedUser, resetPasswordDto);
+        return {
+            data: 'password has been changed successfully',
         };
     }
 

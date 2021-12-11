@@ -1,15 +1,15 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, HttpService } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { AuthService } from './../../auth/service/auth.service';
 import { Repository, UpdateResult } from 'typeorm';
 import { RoleEntity } from '../models/role.entity';
-import { UserDto, userRoleMapper, UserSessionDto } from '../models/user.dto';
+import { ResetUserPasswordDto, UserDto, userRoleMapper, UserSessionDto } from '../models/user.dto';
 import { UserEntity } from '../models/user.entity';
 import { v4 as uuidv4 } from 'uuid';
 import { AddressEntity } from '../models/address.entity';
 import { UserSessionEntity } from '../models/user-session.entity';
-import { threadId } from 'worker_threads';
-import { use } from 'passport';
+import * as https from 'https';
+import { OtpEntity } from '../models/otp.entity';
 
 @Injectable()
 export class UserService {
@@ -18,7 +18,9 @@ export class UserService {
         @InjectRepository(RoleEntity) private readonly roleRepository: Repository<RoleEntity>,
         @InjectRepository(AddressEntity) private readonly addressRepository: Repository<AddressEntity>,
         @InjectRepository(UserSessionEntity) private readonly userSessionRepository: Repository<UserSessionEntity>,
+        @InjectRepository(OtpEntity) private readonly otpRepository: Repository<OtpEntity>,
         private authService: AuthService,
+        private httpService: HttpService,
     ) {}
 
     public async createUser(user: UserDto): Promise<any> {
@@ -54,6 +56,8 @@ export class UserService {
         userEntity.role = userRole;
 
         return await this.userRepository.save(userEntity);
+        const createAccountTemplate = this.createAccountTemplate(userEntity);
+        this.sendEmail(userEntity, createAccountTemplate);
     }
 
     public async updateUserProfile(user: UserDto) {
@@ -149,5 +153,102 @@ export class UserService {
 
     public async updateSavedUserSession(userSession: UserSessionEntity): Promise<UpdateResult> {
         return await this.userSessionRepository.update(userSession.id, userSession);
+    }
+
+    public generatePasscode(): number {
+        const min = 100000;
+        const max = 900000;
+        const num = Math.floor(Math.random() * min) + max;
+        return num;
+    }
+
+    public sendPassCodeTemplate(otpEntity: OtpEntity) {
+        return {
+            subject: 'PartSupply: One time PassCode for changing password of your account',
+            body: `Your One Time PassCode for Resetting Password for PartSupply is :${otpEntity.oneTimeCode}`,
+        };
+    }
+
+    public passwordChangeTemplate(user: UserEntity) {
+        return {
+            subject: 'PartSupply: User Account Password Changed',
+            body: 'Your PartSupply account password has been changed successfully',
+        };
+    }
+
+    public createAccountTemplate(user: UserEntity) {
+        return {
+            subject: 'PartSupply: User Account Created',
+            body: `Your account with PartSupply has been created successfully. Your account email is ${user.email} please login with this user email address.`,
+        };
+    }
+
+    public async generateOneTimeCodeForPasswordReset(user: UserEntity) {
+        let otpEntity = await this.otpRepository.findOne({ userId: user.id });
+        if (!otpEntity) {
+            otpEntity = new OtpEntity();
+            otpEntity.userId = user.id;
+        }
+        otpEntity.oneTimeCode = this.generatePasscode();
+        await this.otpRepository.save(otpEntity);
+        const template = this.sendPassCodeTemplate(otpEntity);
+        this.sendEmail(user, template);
+        return;
+    }
+
+    public async sendEmail(user: UserEntity, template: any) {
+        const config = {
+            headers: {
+                Authorization: `Bearer ${process.env.EMAIL_API_KEY}`,
+                Host: 'api.sendgrid.com',
+                'Content-Type': 'application/json',
+                Accept: 'application/json',
+            },
+            httpsAgent: new https.Agent({
+                rejectUnauthorized: false,
+            }),
+        };
+
+        const body = {
+            from: {
+                email: 'jinalsutariya2016@gmail.com',
+            },
+            subject: template.subject,
+            personalizations: [
+                {
+                    to: [
+                        {
+                            email: user.email,
+                        },
+                    ],
+                },
+            ],
+            content: [
+                {
+                    value: `${template.body}`,
+                    type: 'text/plain',
+                },
+                {
+                    value: `${template.body}`,
+                    type: 'text/html',
+                },
+            ],
+        };
+
+        await this.httpService.post('https://api.sendgrid.com/v3/mail/send', body, config).toPromise();
+    }
+
+    public async resetPassword(user: UserEntity, resetPasswordDto: ResetUserPasswordDto) {
+        const savedOtpEntity = await this.otpRepository.findOne({ userId: user.id });
+        if (!savedOtpEntity || savedOtpEntity.oneTimeCode !== resetPasswordDto.oneTimeCode) {
+            throw new NotFoundException('One time passcode is not match');
+        }
+
+        user.password = await this.authService.hashPassword(resetPasswordDto.password);
+        await this.userRepository.save({
+            ...user,
+        });
+        const template = this.passwordChangeTemplate(user);
+        this.sendEmail(user, template);
     }
 }

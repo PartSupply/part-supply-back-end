@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { HttpModule, Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { UserService } from './../user/service/user.service';
 import { AuthModule } from './../auth/auth.module';
@@ -10,6 +10,7 @@ import { AdminController } from './controller/admin.controller';
 import { AdminService } from './service/admin.service';
 import { PartRequsetEntity } from './../buyer/models/part.entity';
 import { PartBidRequestEntity } from './../seller/models/partBidRequest.entity';
+import { OtpEntity } from './../user/models/otp.entity';
 
 @Module({
     imports: [
@@ -20,8 +21,10 @@ import { PartBidRequestEntity } from './../seller/models/partBidRequest.entity';
             UserSessionEntity,
             PartRequsetEntity,
             PartBidRequestEntity,
+            OtpEntity,
         ]),
         AuthModule,
+        HttpModule,
     ],
     providers: [AdminService, UserService],
     controllers: [AdminController],

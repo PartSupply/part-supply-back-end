@@ -83,7 +83,7 @@ export class AdminController {
         const response: any[] = await this.adminService.getReport(getReportDto, user);
         let amount = 0;
         response.forEach((res: any) => {
-            amount += res.BID_AMOUNT;
+            amount = amount + Number(res.BID_AMOUNT);
         });
         return {
             data: {
